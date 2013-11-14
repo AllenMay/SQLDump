@@ -1,0 +1,42 @@
+
+
+DECLARE @AVG int, @MSY int, @LMA int, @UMA int, @NSY int
+
+select @AVG = (select avg(year(EpDateBeg)) from [EmployeeDB].[dbo].[cCeridianOnlyActiveStaff])
+select @MSY = (select year(MIN(EpDateBeg)) from [EmployeeDB].[dbo].[cCeridianOnlyActiveStaff])
+
+select @LMA = (select avg(year([EpDateBeg])) from [EmployeeDB].[dbo].[cCeridianOnlyActiveStaff] where year(EpDateBeg) < @AVG )
+
+select @UMA = (select avg(year([EpDateBeg])) from [EmployeeDB].[dbo].[cCeridianOnlyActiveStaff] where year(EpDateBeg) > @AVG )
+
+select @NSY = (select year(MAX(EpDateBeg)) from [EmployeeDB].[dbo].[cCeridianOnlyActiveStaff])
+
+-- ------------------------------------------------------------
+SELECT 
+  (select year(MIN(EpDateBeg)) from [EmployeeDB].[dbo].[cCeridianOnlyActiveStaff]) AS [Most Senior],
+  (select count(EpDateBeg) from [EmployeeDB].[dbo].[cCeridianOnlyActiveStaff] where year(EpDateBeg) < (select AVG(YEAR(EpDateBeg)) from [EmployeeDB].[dbo].[cCeridianOnlyActiveStaff] WHERE YEAR(EpDateBeg) < (select AVG(YEAR(EpDateBeg)) from [EmployeeDB].[dbo].[cCeridianOnlyActiveStaff]))) AS [Count Bottom to LMA],
+  (select AVG(YEAR(EpDateBeg)) from [EmployeeDB].[dbo].[cCeridianOnlyActiveStaff] WHERE YEAR(EpDateBeg) < (select AVG(YEAR(EpDateBeg)) from [EmployeeDB].[dbo].[cCeridianOnlyActiveStaff])) AS [Lower-Mid Average],
+  (select count(EpDateBeg) from [EmployeeDB].[dbo].[cCeridianOnlyActiveStaff] where (year(EpDateBeg) >= (select AVG(YEAR(EpDateBeg)) from [EmployeeDB].[dbo].[cCeridianOnlyActiveStaff] WHERE YEAR(EpDateBeg) < (select AVG(YEAR(EpDateBeg)) from [EmployeeDB].[dbo].[cCeridianOnlyActiveStaff]))) AND (year(EpDateBeg) < (select AVG(YEAR(EpDateBeg)) from [EmployeeDB].[dbo].[cCeridianOnlyActiveStaff]))) AS [Count LMA to AVG],
+  (select AVG(YEAR(EpDateBeg)) from [EmployeeDB].[dbo].[cCeridianOnlyActiveStaff]) AS [Average],
+  (select count(EpDateBeg) from [EmployeeDB].[dbo].[cCeridianOnlyActiveStaff] where (year(EpDateBeg) >= (select avg(year(EpDateBeg)) from [EmployeeDB].[dbo].[cCeridianOnlyActiveStaff])) AND (year(EpDateBeg) < (select avg(year([EpDateBeg])) from [EmployeeDB].[dbo].[cCeridianOnlyActiveStaff] where year(EpDateBeg) > (select avg(year(EpDateBeg)) from [EmployeeDB].[dbo].[cCeridianOnlyActiveStaff]) ))) AS [Count AVG to UMA],
+  (select AVG(YEAR(EpDateBeg)) from [EmployeeDB].[dbo].[cCeridianOnlyActiveStaff] WHERE YEAR(EpDateBeg) > (select AVG(YEAR(EpDateBeg)) from [EmployeeDB].[dbo].[cCeridianOnlyActiveStaff])) AS [Upper-Mid Average],
+  (select count(EpDateBeg) from [EmployeeDB].[dbo].[cCeridianOnlyActiveStaff] where (year(EpDateBeg) >= (select avg(year([EpDateBeg])) from [EmployeeDB].[dbo].[cCeridianOnlyActiveStaff] where year(EpDateBeg) > (select avg(year(EpDateBeg)) from [EmployeeDB].[dbo].[cCeridianOnlyActiveStaff]) )) AND (year(EpDateBeg) < (select year(MAX(EpDateBeg)) from [EmployeeDB].[dbo].[cCeridianOnlyActiveStaff]))) AS [Count UMA to NSY],
+  (select year(MAX(EpDateBeg)) from [EmployeeDB].[dbo].[cCeridianOnlyActiveStaff]) AS [Most Recent Member],
+  (select count(EpDateBeg) from [EmployeeDB].[dbo].[cCeridianOnlyActiveStaff] where (year(EpDateBeg) = (select year(MAX(EpDateBeg)) from [EmployeeDB].[dbo].[cCeridianOnlyActiveStaff]))) AS [Count New Members],
+  (select count(EpDateBeg) from [EmployeeDB].[dbo].[cCeridianOnlyActiveStaff]) AS [Total Staff Count]
+  
+
+-- ------------------------------------------------------------
+select 
+  @MSY AS [Most Senior Year], 
+  (select count(EpDateBeg) from [EmployeeDB].[dbo].[cCeridianOnlyActiveStaff] where year(EpDateBeg) < @LMA) AS [Count Bottom to LMA],
+  @LMA AS [Lower Mid Average], 
+  (select count(EpDateBeg) from [EmployeeDB].[dbo].[cCeridianOnlyActiveStaff] where (year(EpDateBeg) >= @LMA) AND (year(EpDateBeg) < @AVG)) AS [Count LMA to AVG],
+  @AVG AS [Average], 
+  (select count(EpDateBeg) from [EmployeeDB].[dbo].[cCeridianOnlyActiveStaff] where (year(EpDateBeg) >= @AVG) AND (year(EpDateBeg) < @UMA)) AS [Count AVG to UMA],
+  @UMA AS [Upper Mid Average], 
+  (select count(EpDateBeg) from [EmployeeDB].[dbo].[cCeridianOnlyActiveStaff] where (year(EpDateBeg) >= @UMA) AND (year(EpDateBeg) < @NSY)) AS [Count UMA to NSY],
+  @NSY [Newest Member Year],
+  (select count(EpDateBeg) from [EmployeeDB].[dbo].[cCeridianOnlyActiveStaff] where (year(EpDateBeg) = @NSY)) AS [Count New Members],
+  (select count(EpDateBeg) from [EmployeeDB].[dbo].[cCeridianOnlyActiveStaff]) AS [Total Staff Count]
+

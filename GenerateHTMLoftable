@@ -1,0 +1,55 @@
+-- http://blog.sqlauthority.com/2013/11/20/sql-server-how-to-export-data-from-sql-server-to-excel-or-any-other-format/
+DECLARE
+  @object_name SYSNAME,
+  @object_id INT,
+  @record_count INT,
+  @how_extended_properties BIT
+  
+SELECT
+-- THE NEXT LINE SYNTAX: [SCHEMA].[TABLE]
+  @object_name = '[dbo].[campaigns]',
+  @object_id = OBJECT_ID(@object_name),
+  @record_count = 100,
+  @how_extended_properties = 0
+  
+DECLARE @SQL NVARCHAR(MAX)
+
+SELECT @SQL = 'SELECT CAST((SELECT ''<table border="1" ><tr>'' + ' +
+                STUFF((
+                  SELECT ' + ''<th>' + 
+                    CASE WHEN @how_extended_properties = 1 THEN ISNULL(c.name + ' (' + CAST(e.value AS NVARCHAR(100)) + ')', c.name)
+                  ELSE c.name
+                  END + '</th>'''
+                  FROM sys.columns c WITH(NOWAIT)
+
+                  LEFT JOIN sys.extended_properties e WITH(NOWAIT) ON e.major_id = c.[object_id]
+                  AND e.minor_id = c.column_id
+                  AND e.class = 1
+                  WHERE TYPE_NAME(c.system_type_id) NOT IN ('xml', 'geography', 'geometry', 'hierarchyid')
+                   AND c.[object_id] = @object_id
+                  ORDER BY c.column_id
+                  FOR XML PATH, TYPE).value('.', 'NVARCHAR(MAX)'), 1, 3, '')
+                + ' + ''</tr>'' + (SELECT TOP ' + CAST(@record_count AS VARCHAR(10)) + ' ''<tr>'' + ' +
+
+                STUFF((
+                SELECT '+ ''<td>''' +
+                CASE
+                WHEN TYPE_NAME(c.system_type_id) = 'uniqueidentifier'
+                THEN ' + ISNULL('''' + CAST([' + c.name + '] AS VARCHAR(MAX)) + '''', '''')'
+                WHEN TYPE_NAME(c.system_type_id) IN ('nvarchar', 'nchar')
+                THEN ' + ISNULL('''' + CAST(REPLACE([' + c.name + '], '''', '''''''') AS NVARCHAR(MAX)) + '''', '''')'
+                WHEN TYPE_NAME(c.system_type_id) IN ('varchar', 'char', 'varbinary', 'binary')
+                THEN ' + ISNULL('''' + CAST(REPLACE([' + c.name + '], '''', '''''''') AS VARCHAR(MAX)) + '''', '''')'
+                WHEN TYPE_NAME(c.system_type_id) IN ('datetime', 'time', 'date')
+                THEN ' + ISNULL('''' + CONVERT(VARCHAR, [' + c.name + '], 120) + '''', '''')'
+                ELSE ' + ISNULL(CAST([' + c.name + '] AS NVARCHAR(MAX)), '''')'
+                END + ' + ''</td>'''
+                FROM sys.columns c WITH(NOWAIT)
+                WHERE TYPE_NAME(c.system_type_id) NOT IN ('xml', 'geography', 'geometry', 'hierarchyid')
+                 AND c.[object_id] = @object_id
+                ORDER BY c.column_id
+                FOR XML PATH, TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') 
+              + '+ ''</tr>''
+              FROM ' + @object_name + ' FOR XML PATH, TYPE).value(''.'', ''NVARCHAR(MAX)'') + ''</table>'' ) AS XML)'
+PRINT @SQL
+EXEC sys.sp_executesql @SQL

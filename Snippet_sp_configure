@@ -1,0 +1,15 @@
+USE master; 
+GO 
+
+EXEC sp_configure 'show advanced',1 --To see xp_cmdshell configuration option
+RECONFIGURE                         --Commit the change
+
+EXEC sp_configure;                  --Display configuration settings
+
+--EXEC sp_configure 'xp_cmdshell',1   --Turn 'xp_cmdshell' on
+--RECONFIGURE                         --Commit the change
+
+--EXEC sp_configure 'xp_cmdshell',0   --Turn 'xp_cmdshell' off
+--RECONFIGURE                         --Commit the change
+
+--EXEC sp_configure;                  --Display configuration settings

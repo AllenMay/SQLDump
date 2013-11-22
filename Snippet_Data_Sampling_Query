@@ -1,0 +1,8 @@
+-- GENERATE A ROW_NUMBER COLUMN AND SELECT ALL 'X' NUMBER OF ROWS
+
+SELECT rowNumber, itemnumREQ FROM  
+(
+  SELECT TOP 10000 ROW_NUMBER() OVER(ORDER BY itemnumREQ) AS rowNumber, itemnumREQ
+  FROM [dbo].[ReqAppendFromQLSArchiveLASTNAME]
+  ) t
+  WHERE rowNumber = 1 OR rowNumber % 500 = 0

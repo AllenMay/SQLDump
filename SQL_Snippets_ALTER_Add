@@ -1,0 +1,65 @@
+-- -----------------------------------------------------
+-- /* NON-INDEXED VERSION OF ADDING IDENTITY */
+USE tempdb
+GO
+-- Create Table
+CREATE TABLE TestTable (Col1 INT, Col2 VARCHAR(100))
+GO
+-- Insert Data
+INSERT INTO TestTable (Col1, Col2)
+VALUES (33, 'Pinal');
+INSERT INTO TestTable (Col1, Col2)
+VALUES (22, 'Nupur');
+INSERT INTO TestTable (Col1, Col2)
+VALUES (11, 'Shaivi');
+GO
+-- Select Data
+SELECT *
+FROM TestTable
+GO
+-- Add Identity Column
+ALTER TABLE TestTable
+ADD ID INT IDENTITY(1, 1)
+GO
+-- Select Data
+SELECT *
+FROM TestTable
+GO
+-- Clean up
+DROP TABLE TestTable
+GO
+-- -----------------------------------------------------
+-- /* INDEXED VERSION OF ADDING IDENTITY */
+
+USE tempdb
+GO
+-- Create Table
+CREATE TABLE TestTable (Col1 INT, Col2 VARCHAR(100))
+GO
+-- Insert Data
+INSERT INTO TestTable (Col1, Col2)
+VALUES (33, 'Pinal');
+INSERT INTO TestTable (Col1, Col2)
+VALUES (22, 'Nupur');
+INSERT INTO TestTable (Col1, Col2)
+VALUES (11, 'Shaivi');
+GO
+-- Select Data
+SELECT *
+FROM TestTable
+GO
+-- Create Clustered Index on Column ID
+CREATE CLUSTERED INDEX IX_TestTable ON dbo.TestTable
+(Col1 ASC)
+GO
+-- Add Identity Column
+ALTER TABLE TestTable
+ADD ID INT IDENTITY(1, 1)
+GO
+-- Select Data
+SELECT *
+FROM TestTable
+GO
+-- Clean up
+DROP TABLE TestTable
+GO

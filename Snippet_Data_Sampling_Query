@@ -4,5 +4,5 @@ SELECT rowNumber, itemnumREQ FROM
 (
   SELECT TOP 10000 ROW_NUMBER() OVER(ORDER BY itemnumREQ) AS rowNumber, itemnumREQ
   FROM [dbo].[ReqAppendFromQLSArchiveLASTNAME]
-  ) t
-  WHERE rowNumber = 1 OR rowNumber % 500 = 0
+) t
+WHERE rowNumber = 1 OR rowNumber % 500 = 0

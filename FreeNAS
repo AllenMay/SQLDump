@@ -1,0 +1,45 @@
+FreeNAS Configuration
+
+SETTING UP PLEX
+----------------
+
+
+1. CREATE THE [VOLUME]:
+    Storage > Volumes > ZFS Volume Manager
+      Volume Name: [YOUR VOLUME NAME] (plex)
+
+Plugins are built on light weight virtual machines - known as Jails - stored on system [VOLUMES].
+We will create a dataset name MEDIA for our media.
+
+2. CREATE DATASET:
+    Storage > Volumes > [VOLUME NAME] > Create ZFS Dataset 
+      Dataset Name: [DATASET NAME] (media)
+
+3. CREATE A SIMPLE SHARE TO UPLOAD VIDEO:
+    Sharing > Windows (CIFS) Shares > Add Windows (CIFS) Share
+      Name: [SHARE NAME] (media)
+      Path: [PATH TO DATASET] (/mnt/plex/media) [CREATED IN STEP 2 ABOVE]
+      Allow Guest Access: [X]
+
+4. CHANGE DATASET PERMISSIONS TO ALLOW GUESTS TO CONNECT:
+    Storage > Volumes > [VOLUME NAME (Step 1)] > Change Permissions
+      Mode: Write Other [X]
+      Set permission recursively: [X]
+
+5. UPLOAD VIDEO:
+    Go to the IP address of the FreeNAS server to find the shared folder to upload video.
+      \\FreeNAS\media
+
+6. RESET PERMISSIONS:
+    Any folders moved into the shared folder need their permissions set.
+    Repeat step 4
+
+7. INSTALL THE PLEX MEDIA SERVER PLUG
+    Plugins > Name: Plex Media Server
+    Install
+
+8. LINK FILES IN [MEDIA] DATASET TO PLEX [MEDIA] IN JAIL
+     Jails > plexs_1 > Storage > Add Storage
+       Jail: plex_1
+       Source: /mnt/plex/media (created in step 2)
+       Destination: /media

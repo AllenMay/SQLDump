@@ -1,0 +1,15 @@
+SQL SERVER – Export Data AS CSV from Database Using SQLCMD 
+http://feedproxy.google.com/~r/SQLAuthority/~3/SX1IfiyAHHs/?utm_source=feedburner&utm_medium=email
+
+Method 1: CSV with Column Header
+C:\Users\pinaldave>sqlcmd -S localhost -d AdventureWorks2012 -E -Q “SELECT * FROM HumanResources.Employee” -o “CSVData.csv” -W -w 1024 -s”,”
+
+Method 2: CSV without Column Header
+C:\Users\pinaldave>sqlcmd -S localhost -d AdventureWorks2012 -E -Q “SELECT * FROM HumanResources.Employee” -o “CSVData.csv” -W -w 1024 -s”,” -h-1
+ 
+Additional explanation:
+	-S”,” – sets the delimiter to the comma
+	-w number – sets the length of the csv line before it wraps
+	-W – removes trailing whitespace
+	-h-1 – removes header in CSV (Column Header)
+	-E (use trusted connection) – instead of this use  -U username and -P password

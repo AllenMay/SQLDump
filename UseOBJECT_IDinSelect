@@ -1,0 +1,18 @@
+SQL SERVER – Building Three-Part Name from OBJECT_ID – Database Name, Schema Name, TableName
+http://blog.sqlauthority.com/2013/11/28/sql-server-building-three-part-name-from-object_id-database-name-schema-name-tablename/?utm_source=feedburner&utm_medium=email&utm_campaign=Feed%3A+SQLAuthority+%28Journey+to+SQL+Authority+with+Pinal+Dave%29
+
+...
+
+“How I get three part name if the only thing I have is object_id and current database context. What I mean is that, when I query executes, I do not know for which database it is executing as the name of the database is part of the connection string. I only know the name of the object_id. I have already read your earlier article but I need further guidance. Can you help?”
+
+Here is the script which will generate three part name based out of just object_id. For example we have object_id 1154103152 which belongs to AdventureWorks database, Sales SchemaName and SalesOrderDetails table. Here is how you can generate three part namings.
+
+SELECT QUOTENAME(DB_NAME())
++N'.'+QUOTENAME(OBJECT_SCHEMA_NAME(1154103152))
++N'.'+QUOTENAME(OBJECT_NAME(1154103152));
+
+
+The above query will give us following result:
+[AdventureWorks2012].[Sales].[SalesOrderDetail]
+
+Instead of passing static variables you can also pass the column containing object_id into the function and get three part name of the objects.

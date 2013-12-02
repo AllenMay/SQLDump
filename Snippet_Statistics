@@ -1,0 +1,16 @@
+List All Statistics from Any Database
+-------------------------------------
+
+SELECT OBJECT_ID, name, auto_created,
+user_created, is_temporary
+FROM sys.stats;
+
+List All Statistics from Read-Only Database
+-------------------------------------------
+
+SELECT OBJECT_ID, name, auto_created,
+user_created, is_temporary
+FROM sys.stats
+WHERE is_temporary = 1;
+
+
